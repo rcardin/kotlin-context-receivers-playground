@@ -8,14 +8,8 @@ import `in`.rcard.context.receivers.domain.Job
 import `in`.rcard.context.receivers.domain.JobId
 import java.util.logging.Level
 
-suspend fun main() {
-    val jobs = LiveJobs()
-    val jobController = JobController(jobs)
-    with(jobJsonable) {
-        with(ConsoleLogger()) {
-            println(jobController.findJobById("1"))
-        }
-    }
+fun main() {
+    JOBS_DATABASE.values.toList().let(::printAsJson)
 }
 
 class JobController(private val jobs: Jobs) {
@@ -30,6 +24,23 @@ class JobController(private val jobs: Jobs) {
         } ?: "No job found with id $id"
     }
 }
+
+fun printAsJson(objs: List<Job>) =
+    objs.map { it.toJson() }.joinToString(separator = ", ", prefix = "[", postfix = "]")
+
+fun Job.toJson(): String =
+    """
+        {
+            "id": ${id.value},
+            "company": "${company.name}",
+            "role": "${role.name}",
+            "salary": $salary.value}
+        }
+    """.trimIndent()
+
+// fun <T> printAsJson(objs: List<T>) {
+//    objs.forEach { it.toJson() }
+// }
 
 interface Jobs {
     suspend fun findById(id: JobId): Job?
