@@ -3,15 +3,13 @@
  */
 package `in`.rcard.context.receivers
 
-import `in`.rcard.context.receivers.domain.Company
+import `in`.rcard.context.receivers.domain.JOBS_DATABASE
 import `in`.rcard.context.receivers.domain.Job
 import `in`.rcard.context.receivers.domain.JobId
-import `in`.rcard.context.receivers.domain.Role
-import `in`.rcard.context.receivers.domain.Salary
 import java.util.logging.Level
 
 suspend fun main() {
-    val jobs = FixedJobs()
+    val jobs = LiveJobs()
     val jobController = JobController(jobs)
     with(jobJsonable) {
         with(ConsoleLogger()) {
@@ -37,15 +35,8 @@ interface Jobs {
     suspend fun findById(id: JobId): Job?
 }
 
-class FixedJobs : Jobs {
-    override suspend fun findById(id: JobId): Job {
-        return Job(
-            JobId(1),
-            Company("Apple, Inc."),
-            Role("Software Engineer"),
-            Salary(70_000.00),
-        )
-    }
+class LiveJobs : Jobs {
+    override suspend fun findById(id: JobId): Job? = JOBS_DATABASE[id]
 }
 
 interface Jsonable<T> {
