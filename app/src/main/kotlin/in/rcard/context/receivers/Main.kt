@@ -9,12 +9,14 @@ import `in`.rcard.context.receivers.domain.JobId
 import java.util.logging.Level
 
 fun main() {
-    JOBS_DATABASE.values.toList().let(::printAsJson)
+    with(jobJsonScope) {
+        println(printAsJson(JOBS_DATABASE.values.toList()))
+    }
 }
 
 class JobController(private val jobs: Jobs) {
 
-    context (Jsonable<Job>, Logger)
+    context (JsonScope<Job>, Logger)
     suspend fun findJobById(id: String): String {
         log(Level.INFO, "Searching job with id $id")
         val jobId = JobId(id.toLong())
@@ -26,7 +28,7 @@ class JobController(private val jobs: Jobs) {
 }
 
 fun printAsJson(objs: List<Job>) =
-    objs.map { it.toJson() }.joinToString(separator = ", ", prefix = "[", postfix = "]")
+    objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
 
 fun Job.toJson(): String =
     """
@@ -38,9 +40,8 @@ fun Job.toJson(): String =
         }
     """.trimIndent()
 
-// fun <T> printAsJson(objs: List<T>) {
-//    objs.forEach { it.toJson() }
-// }
+fun <T> JsonScope<T>.printAsJson(objs: List<T>) =
+    objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
 
 interface Jobs {
     suspend fun findById(id: JobId): Job?
@@ -50,11 +51,11 @@ class LiveJobs : Jobs {
     override suspend fun findById(id: JobId): Job? = JOBS_DATABASE[id]
 }
 
-interface Jsonable<T> {
+interface JsonScope<T> {
     fun T.toJson(): String
 }
 
-val jobJsonable = object : Jsonable<Job> {
+val jobJsonScope = object : JsonScope<Job> {
     override fun Job.toJson(): String {
         return """
             {
