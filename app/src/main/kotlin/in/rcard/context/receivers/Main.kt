@@ -72,8 +72,8 @@ interface Logger {
     fun log(level: Level, message: String)
 }
 
-class ConsoleLogger : Logger {
+val consoleLogger = object : Logger {
     override fun log(level: Level, message: String) {
-        println("$level: $message")
+        println("[$level] $message")
     }
 }
