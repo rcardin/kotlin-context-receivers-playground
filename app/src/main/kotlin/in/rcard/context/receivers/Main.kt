@@ -10,7 +10,9 @@ import java.util.logging.Level
 
 fun main() {
     with(jobJsonScope) {
-        println(printAsJson(JOBS_DATABASE.values.toList()))
+        with(consoleLogger) {
+            println(printAsJson(JOBS_DATABASE.values.toList()))
+        }
     }
 }
 
@@ -46,6 +48,12 @@ fun Job.toJson(): String =
 context (JsonScope<T>)
 fun <T> printAsJson(objs: List<T>) =
     objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
+
+context (JsonScope<T>, Logger)
+fun <T> printAsJson(objs: List<T>): String {
+    this@Logger.log(Level.INFO, "Serializing $objs list as JSON")
+    return objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
+}
 
 interface Jobs {
     suspend fun findById(id: JobId): Job?
