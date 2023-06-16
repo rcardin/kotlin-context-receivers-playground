@@ -40,7 +40,11 @@ fun Job.toJson(): String =
         }
     """.trimIndent()
 
-fun <T> JsonScope<T>.printAsJson(objs: List<T>) =
+// fun <T> JsonScope<T>.printAsJson(objs: List<T>) =
+//    objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
+
+context (JsonScope<T>)
+fun <T> printAsJson(objs: List<T>) =
     objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
 
 interface Jobs {
