@@ -9,10 +9,8 @@ import `in`.rcard.context.receivers.domain.JobId
 import java.util.logging.Level
 
 fun main() {
-    with(jobJsonScope) {
-        with(consoleLogger) {
-            println(printAsJson(JOBS_DATABASE.values.toList()))
-        }
+    with(consoleLogger) {
+        val jobs = LiveJobs()
     }
 }
 
@@ -59,8 +57,12 @@ interface Jobs {
     suspend fun findById(id: JobId): Job?
 }
 
+context (Logger)
 class LiveJobs : Jobs {
-    override suspend fun findById(id: JobId): Job? = JOBS_DATABASE[id]
+    override suspend fun findById(id: JobId): Job? {
+        log(Level.INFO, "Searching job with id $id")
+        return JOBS_DATABASE[id]
+    }
 }
 
 interface JsonScope<T> {
