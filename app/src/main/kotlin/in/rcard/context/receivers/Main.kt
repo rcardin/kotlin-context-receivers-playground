@@ -21,10 +21,10 @@ suspend fun main() {
 context (Jobs, JsonScope<Job>, Logger)
 class JobController {
     suspend fun findJobById(id: String): String {
-        log(Level.INFO, "Searching job with id $id")
+        this@Logger.log(Level.INFO, "Searching job with id $id")
         val jobId = JobId(id.toLong())
-        return findById(jobId)?.let {
-            log(Level.INFO, "Job with id $id found")
+        return this@Jobs.findById(jobId)?.let {
+            this@Logger.log(Level.INFO, "Job with id $id found")
             return it.toJson()
         } ?: "No job found with id $id"
     }
