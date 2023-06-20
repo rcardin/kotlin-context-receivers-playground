@@ -8,19 +8,22 @@ import `in`.rcard.context.receivers.domain.Job
 import `in`.rcard.context.receivers.domain.JobId
 import java.util.logging.Level
 
-fun main() {
-    with(consoleLogger) {
-        val jobs = LiveJobs()
+suspend fun main() {
+    with(jobJsonScope) {
+        with(consoleLogger) {
+            with(LiveJobs()) {
+                JobController().findJobById("1").also(::println)
+            }
+        }
     }
 }
 
-class JobController(private val jobs: Jobs) {
-
-    context (JsonScope<Job>, Logger)
+context (Jobs, JsonScope<Job>, Logger)
+class JobController {
     suspend fun findJobById(id: String): String {
         log(Level.INFO, "Searching job with id $id")
         val jobId = JobId(id.toLong())
-        return jobs.findById(jobId)?.let {
+        return findById(jobId)?.let {
             log(Level.INFO, "Job with id $id found")
             return it.toJson()
         } ?: "No job found with id $id"
