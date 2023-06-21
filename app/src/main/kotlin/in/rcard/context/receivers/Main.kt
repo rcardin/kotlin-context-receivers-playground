@@ -11,20 +11,18 @@ import java.util.logging.Level
 suspend fun main() {
     with(jobJsonScope) {
         with(consoleLogger) {
-            with(LiveJobs()) {
-                JobController().findJobById("1").also(::println)
-            }
+            JobController(LiveJobs()).findJobById("1").also(::println)
         }
     }
 }
 
-context (Jobs, JsonScope<Job>, Logger)
-class JobController {
+context (JsonScope<Job>, Logger)
+class JobController(private val jobs: Jobs) {
     suspend fun findJobById(id: String): String {
-        this@Logger.log(Level.INFO, "Searching job with id $id")
+        log(Level.INFO, "Searching job with id $id")
         val jobId = JobId(id.toLong())
-        return this@Jobs.findById(jobId)?.let {
-            this@Logger.log(Level.INFO, "Job with id $id found")
+        return jobs.findById(jobId)?.let {
+            log(Level.INFO, "Job with id $id found")
             return it.toJson()
         } ?: "No job found with id $id"
     }
