@@ -6,7 +6,6 @@ package `in`.rcard.context.receivers
 import `in`.rcard.context.receivers.domain.JOBS_DATABASE
 import `in`.rcard.context.receivers.domain.Job
 import `in`.rcard.context.receivers.domain.JobId
-import java.util.logging.Level
 
 suspend fun main() {
     with(jobJsonScope) {
@@ -19,10 +18,10 @@ suspend fun main() {
 context (JsonScope<Job>, Logger)
 class JobController(private val jobs: Jobs) {
     suspend fun findJobById(id: String): String {
-        log(Level.INFO, "Searching job with id $id")
+        info("Searching job with id $id")
         val jobId = JobId(id.toLong())
         return jobs.findById(jobId)?.let {
-            log(Level.INFO, "Job with id $id found")
+            info("Job with id $id found")
             return it.toJson()
         } ?: "No job found with id $id"
     }
@@ -50,7 +49,7 @@ fun <T> printAsJson(objs: List<T>) =
 
 context (JsonScope<T>, Logger)
 fun <T> printAsJson(objs: List<T>): String {
-    this@Logger.log(Level.INFO, "Serializing $objs list as JSON")
+    this@Logger.info("Serializing $objs list as JSON")
     return objs.joinToString(separator = ", ", prefix = "[", postfix = "]") { it.toJson() }
 }
 
@@ -61,7 +60,7 @@ interface Jobs {
 context (Logger)
 class LiveJobs : Jobs {
     override suspend fun findById(id: JobId): Job? {
-        log(Level.INFO, "Searching job with id $id")
+        info("Searching job with id $id")
         return JOBS_DATABASE[id]
     }
 }
@@ -84,11 +83,11 @@ val jobJsonScope = object : JsonScope<Job> {
 }
 
 interface Logger {
-    fun log(level: Level, message: String)
+    fun info(message: String)
 }
 
 val consoleLogger = object : Logger {
-    override fun log(level: Level, message: String) {
-        println("[$level] $message")
+    override fun info(message: String) {
+        println("[INFO] $message")
     }
 }
